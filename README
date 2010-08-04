@@ -1,0 +1,7 @@
+#Required JavaScript Libraries
+<script type="text/javascript" src="static/yui/3.1.1/yui/yui.js"></script>
+<script type="text/javascript" src="static/yui/3.1.1/oop/oop.js"></script>
+<script type="text/javascript" src="static/yui/3.1.1/dom/dom.js"></script>
+<script type="text/javascript" src="static/yui/3.1.1/event-custom/event-custom-base.js"></script>
+<script type="text/javascript" src="static/yui/3.1.1/event/event-base.js"></script>
+<script type="text/javascript" src="static/yui/3.1.1/node/node-base.js"></script>
