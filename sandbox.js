@@ -50,6 +50,6 @@ YUI.add("platform-sandbox", function (Y) {
     };
     Y.PlatformSandbox = PlatformSandbox;
 });
-Y.config.fetchCSS = false;
 var Y = YUI();
+Y.config.fetchCSS = false;
 Y.use("*");
