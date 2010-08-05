@@ -1,9 +1,9 @@
 /*global YUI */
-YUI.add("sandbox", function (Y) {
-    var Sandbox = function (id) {
+YUI.add("platform-sandbox", function (Y) {
+    var PlatformSandbox = function (id) {
         this.id = id;
     };
-    Sandbox.prototype = {
+    PlatformSandbox.prototype = {
         /* 
          * Module broadcasts its message to platform.
          * @method broadcast
@@ -13,18 +13,18 @@ YUI.add("sandbox", function (Y) {
          * @return void
          */
         broadcast: function (msgName, data) {
-            Y.log("broadcast(\"" + msgName + "\") for #" + this.id + " is executed.", "info", "Sandbox"); 
+            Y.log("broadcast(\"" + msgName + "\") for #" + this.id + " is executed.", "info", "PlatformSandbox"); 
             var moduleId;
             if (msgName.indexOf(":") !== -1) {
                 moduleId = msgName.split(":")[0];                    
                 if (moduleId !== this.id) {
-                    Y.log("broadcast(\"" + msgName + "\") the id you assigned is not identical with current module id.", "warn", "Sandbox"); 
+                    Y.log("broadcast(\"" + msgName + "\") the id you assigned is not identical with current module id.", "warn", "PlatformSandbox"); 
                     return false;
                 }
             } else {
                 msgName = this.id + ":" + msgName;
             }
-            Y.Core._match(msgName, this.id, data);
+            Y.PlatformCore._match(msgName, this.id, data);
         },
         /* 
          * Module listens to specific event.
@@ -34,8 +34,8 @@ YUI.add("sandbox", function (Y) {
          * @return void
          */
         listen: function (msgName, callback) {
-            Y.log("listen(\"" + msgName + "\") for #" + this.id + " is executed.", "info", "Sandbox"); 
-            Y.Core._addListener(this.id, msgName, callback);
+            Y.log("listen(\"" + msgName + "\") for #" + this.id + " is executed.", "info", "PlatformSandbox"); 
+            Y.PlatformCore._addListener(this.id, msgName, callback);
         },
         /* 
          * Module gets YUI Node instance.
@@ -44,11 +44,12 @@ YUI.add("sandbox", function (Y) {
          * @return {Y.Node} Module YUI Node instance.
          */
         getViewNode: function () {
-            Y.log("getViewNode() for #" + this.id + " is executed.", "info", "Sandbox"); 
+            Y.log("getViewNode() for #" + this.id + " is executed.", "info", "PlatformSandbox"); 
             return Y.one("#" + this.id);
         }
     };
-    Y.Sandbox = Sandbox;
+    Y.PlatformSandbox = PlatformSandbox;
 });
+Y.config.fetchCSS = false;
 var Y = YUI();
 Y.use("*");
