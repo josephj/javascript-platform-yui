@@ -1,5 +1,5 @@
 /*global YUI */
-YUI.add("core", function (Y) {
+YUI.add("platform-core", function (Y) {
     var registeredModules = [],
         listeners = {},
         maps = [],
@@ -15,13 +15,13 @@ YUI.add("core", function (Y) {
          * @return void
          */
         match = function (msgName, callerId, callerData) {
-            Y.log("match(\"" + msgName + "\", \"" + callerId + "\", \"" + callerData + "\") is executed.", "info", "Core");
+            Y.log("match(\"" + msgName + "\", \"" + callerId + "\", \"" + callerData + "\") is executed.", "info", "PlatformCore");
             var modules = [], 
                 i,
                 key;
             if (msgName.indexOf(":") !== -1) {
                 if (callerId !== msgName.split(":")[0]) {
-                    Y.log("match(\"" + msgName + "\") the id you assigned (" + msgName.split(":")[0] + ") is not identical with current module id (" + callerId + "). Stop execution.", "warn", "Sandbox"); 
+                    Y.log("match(\"" + msgName + "\") the id you assigned (" + msgName.split(":")[0] + ") is not identical with current module id (" + callerId + "). Stop execution.", "warn", "PlatformCore"); 
                     return;
                 }
             }
@@ -45,10 +45,10 @@ YUI.add("core", function (Y) {
                     modules.push(i);
                 }
                 catch (e) {
-                    Y.log("_match() " + e.message, "error", "Core");
+                    Y.log("_match() " + e.message, "error", "PlatformCore");
                 }
             }    
-            Y.log("_match(\"" + msgName + "\", \"" + callerId + "\", \"" + callerData + "\") is executed successfully, " + modules.length + " module(s) is(are) influenced: \"#" + modules.join(", #") + "\"", "info", "Core");
+            Y.log("_match(\"" + msgName + "\", \"" + callerId + "\", \"" + callerData + "\") is executed successfully, " + modules.length + " module(s) is(are) influenced: \"#" + modules.join(", #") + "\"", "info", "PlatformCore");
         },
         /* 
          * Let a module listen for a specific message 
@@ -60,18 +60,12 @@ YUI.add("core", function (Y) {
          *                
          */
         addListener = function (moduleId, msgName, handler) {
-            Y.log("_addListener(\"" + moduleId + "\", \"" + msgName + "\") is executed.", "info", "Core");
+            Y.log("_addListener(\"" + moduleId + "\", \"" + msgName + "\") is executed.", "info", "PlatformCore");
             var i, 
                 j,
                 listener,
                 listenerId,
                 targetId;
-/*
-            if (msgName.indexOf(":") !== -1) {
-                msgName = msgName.split(":")[0];
-                targetId = msgName.split(":")[1];
-            }
-*/
             handler = handler || function () {};
             listenerId = Y.guid();
             if (typeof listeners[moduleId] === "undefined") {
@@ -82,7 +76,7 @@ YUI.add("core", function (Y) {
             return listenerId;
         },
         /* 
-         * Register a module to Core
+         * Register a module to PlatformCore
          * @method register
          * @param moduleId {String} ID of the module which wants to register.
          * @param attrs {String} Methods/attributes object which the registering module has.
@@ -90,22 +84,22 @@ YUI.add("core", function (Y) {
          * @return {Boolean} false if target message is registered by this module
          */
         register = function (moduleId, o) {
-            Y.log("register(\"" + moduleId + "\", " + o + ") is executed.", "info", "Core"); 
+            Y.log("register(\"" + moduleId + "\", " + o + ") is executed.", "info", "PlatformCore"); 
             var sandbox;
             registeredModules[moduleId] = o;    
             if (typeof o.init === "undefined") {
-                Y.log("register() : Module init function is not defined.", "warn", "Core"); 
+                Y.log("register() : Module init function is not defined.", "warn", "PlatformCore"); 
                 return;
             }
-            sandbox = new Y.Sandbox(moduleId);
+            sandbox = new Y.PlatformSandbox(moduleId);
             o.init(sandbox);
             if (typeof o.onviewload === "undefined") {
-                Y.log("register() : Module onviewload function is not defined.", "warn", "Core"); 
+                Y.log("register() : Module onviewload function is not defined.", "warn", "PlatformCore"); 
                 return;
             }
             Y.on("contentready", o.onviewload, "#" + moduleId, o);
         };       
-    Y.Core = {
+    Y.PlatformCore = {
         register: register,
         _match: match,
         _addListener: addListener
