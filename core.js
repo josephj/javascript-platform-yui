@@ -1,4 +1,5 @@
 /*global YUI */
+YUI.namespace("PlatformModules");
 YUI.add("platform-core", function (Y) {
     var registeredModules = [],
         listeners = {},
@@ -6,7 +7,7 @@ YUI.add("platform-core", function (Y) {
         //===========================
         // Private Functions & Events
         //===========================
-        /* 
+        /*
          * Match event and modules which subscribes the event
          * @method match
          * @param msgName {String} Event label name
@@ -77,31 +78,48 @@ YUI.add("platform-core", function (Y) {
         },
         /* 
          * Register a module to PlatformCore
+         *
          * @method register
          * @param moduleId {String} ID of the module which wants to register.
          * @param attrs {String} Methods/attributes object which the registering module has.
+         * @param registerOnly {Boolean} Default is false. If you set true, please start() module manually.
          * @public
          * @return {Boolean} false if target message is registered by this module
          */
-        register = function (moduleId, o) {
+        register = function (moduleId, o, registerOnly) {
             Y.log("register(\"" + moduleId + "\", " + o + ") is executed.", "info", "PlatformCore"); 
-            var sandbox;
+            registerOnly = registerOnly || false;
             registeredModules[moduleId] = o;    
-            if (typeof o.init === "undefined") {
+            if (registerOnly) {
+                return;
+            }
+            start(moduleId);
+        },
+        registerAll = function (modules, registerOnly) {
+            Y.log("registerAll() is executed.", "info", "PlatformCore"); 
+            registerOnly = registerOnly || false;
+            for (var i in modules) {
+                register(i, modules[i], registerOnly);
+            }
+        },
+        start = function (moduleId) {
+            if (typeof registeredModules[moduleId].init === "undefined") {
                 Y.log("register() : Module init function is not defined.", "warn", "PlatformCore"); 
                 return;
             }
-            sandbox = new Y.PlatformSandbox(moduleId);
-            o.init(sandbox);
-            if (typeof o.onviewload === "undefined") {
+            var sandbox = new Y.PlatformSandbox(moduleId);
+            registeredModules[moduleId].init(sandbox);
+            if (typeof registeredModules[moduleId].onviewload === "undefined") {
                 Y.log("register() : Module onviewload function is not defined.", "warn", "PlatformCore"); 
                 return;
             }
-            Y.on("contentready", o.onviewload, "#" + moduleId, o);
+            Y.on("contentready", registeredModules[moduleId].onviewload, "#" + moduleId, registeredModules[moduleId]);
         };       
     Y.PlatformCore = {
         register: register,
+        registerAll: registerAll,
+        start: start,
         _match: match,
         _addListener: addListener
     };
-});
+}, "3.1.1", {use: ["platform-sandbox", "event"]});
