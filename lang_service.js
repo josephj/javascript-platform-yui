@@ -51,4 +51,4 @@ YUI.add("lang-service", function (Y) {
         }
         return text;
     };
-}, "3.1.1", {use: ["intl"]});
+}, "3.1.1", {use: ["intl", "substitute"]});
