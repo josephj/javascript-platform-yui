@@ -1,7 +1,27 @@
 #Required JavaScript Libraries
-<script type="text/javascript" src="static/yui/3.1.1/yui/yui.js"></script>
-<script type="text/javascript" src="static/yui/3.1.1/oop/oop.js"></script>
-<script type="text/javascript" src="static/yui/3.1.1/dom/dom.js"></script>
-<script type="text/javascript" src="static/yui/3.1.1/event-custom/event-custom-base.js"></script>
-<script type="text/javascript" src="static/yui/3.1.1/event/event-base.js"></script>
-<script type="text/javascript" src="static/yui/3.1.1/node/node-base.js"></script>
+<script type="text/javascript" src="static/yui/3.1.1/yui/yui.js"></script>                                                                              
+<script type="text/javascript" src="static/platform/core.js"></script>                                                                                  
+<script type="text/javascript" src="static/platform/sandbox.js"></script>                                                                               
+#Language Extension
+<script type="text/javascript" src="static/platform/lang_service.js"></script>  
+#Start it manually
+<script>
+Y = YUI({
+    filter: "raw",
+    lang: "jp-JP",
+    groups: {
+        myapp: {
+            base: "static/",
+            modules : {
+                "demo" : {
+                    lang: ["jp-JP", "zh-Hant", "zh-Hans"]
+                }
+            }
+        }
+    }
+}).use("substitute", "platform-core", "lang-service", "event-delegate", "demo", function (Y) {
+    var core = Y.PlatformCore;
+    core.registerAll(YUI.PlatformModules);
+    core.setLangModule("demo");
+});
+</script>
