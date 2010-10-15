@@ -40,7 +40,7 @@ YUI.add("lang-service", function (Y) {
             trans,
             tokens,
             text;
-        key = moduleName + "-" + this.id.replace("/\-/g", "_") + "-" + key;
+        key = moduleName + "-" + this.id.replace(/\-/g, "_") + "-" + key;
         defaultValue = defaultValue || "";
         trans = Y.Intl.get(moduleName);
         isExist =  (typeof trans[key] !== "undefined") ? true : false;
