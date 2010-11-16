@@ -2,10 +2,8 @@
 <script type="text/javascript" src="static/yui/3.1.1/yui/yui.js"></script>                                                                              
 <script type="text/javascript" src="static/platform/core.js"></script>                                                                                  
 <script type="text/javascript" src="static/platform/sandbox.js"></script>                                                                               
-
 #Language Extension
 <script type="text/javascript" src="static/platform/lang_service.js"></script>  
-
 #Start it manually
 <script>
 Y = YUI({
