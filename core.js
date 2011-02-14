@@ -113,7 +113,11 @@ YUI.add("platform-core", function (Y) {
                 Y.log("register() : Module onviewload function is not defined.", "warn", "PlatformCore"); 
                 return;
             }
-            Y.on("contentready", registeredModules[moduleId].onviewload, "#" + moduleId, registeredModules[moduleId]);
+            if (document.getElementById(moduleId)) {
+                Y.on("available", registeredModules[moduleId].onviewload, "#" + moduleId, registeredModules[moduleId]);
+            } else {
+                Y.on("contentready", registeredModules[moduleId].onviewload, "#" + moduleId, registeredModules[moduleId]);
+            }
         };       
     Y.PlatformCore = {
         register: register,
