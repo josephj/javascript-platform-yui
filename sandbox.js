@@ -49,4 +49,4 @@ YUI.add("platform-sandbox", function (Y) {
         }
     };
     Y.PlatformSandbox = PlatformSandbox;
-}, "3.1.1", {use: ["platform-core"]});
+});
