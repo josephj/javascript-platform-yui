@@ -126,4 +126,4 @@ YUI.add("platform-core", function (Y) {
         _match: match,
         _addListener: addListener
     };
-}, "3.1.1", {use: ["platform-sandbox", "event"]});
+});
