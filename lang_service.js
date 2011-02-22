@@ -52,15 +52,11 @@ YUI.add("lang-service", function (Y) {
      Y.PlatformCore.setLang = function (lang, callback) {
         Y.log("setLang() is executed.", "info", "Y.PlatformCore");
         _activeTag = lang;
-        var isLoaded = Y.Intl.setLang(_moduleName, lang);
-        if (!isLoaded) {
-            Y.use("lang/" + _moduleName + "_" + lang, function(Y) {
-                Y.Intl.setLang(_moduleName, lang);
+        Y.use("lang/" + _moduleName + "_" + lang, function(Y) {
+            if (Y.Intl.setLang(_moduleName, lang) && callback) {
                 callback();
-            });
-        } else {
-            callback();
-        }
+            }
+        });
     };
 
     /*
