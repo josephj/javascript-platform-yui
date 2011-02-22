@@ -49,6 +49,31 @@ YUI.add("lang-service", function (Y) {
      * @param {Function} callback Callback function.
      * @return void();
      */
+     Y.PlatformCore.setLang = function (lang, callback) {
+        Y.log("setLang() is executed.", "info", "Y.PlatformCore");
+        _activeTag = lang;
+        var isLoaded = Y.Intl.setLang(_moduleName, lang);
+        if (!isLoaded) {
+            Y.use("lang/" + _moduleName + "_" + lang, function(Y) {
+                Y.Intl.setLang(_moduleName, lang);
+                callback();
+            });
+        } else {
+            callback();
+        }
+    };
+
+    /*
+     * Switch to different language tag. 
+     * It will on-demand load target language resource file.
+     * 
+     * @method setLang
+     * @static
+     * @public
+     * @param {String} lang Language tag.
+     * @param {Function} callback Callback function.
+     * @return void();
+     */
     Y.PlatformSandbox.prototype.setLang = function (lang, callback) {
         Y.log("setLang() is executed.", "info", "Y.PlatformSandbox");
         _activeTag = lang;
