@@ -114,7 +114,9 @@ YUI.add("platform-core", function (Y) {
                 return;
             }
             if (document.getElementById(moduleId)) {
-                Y.on("available", registeredModules[moduleId].onviewload, "#" + moduleId, registeredModules[moduleId]);
+                // TODO: Find the reason why onavailable is not triggered when browsing space in Bar (IE8).
+                // Y.on("available", registeredModules[moduleId].onviewload, "#" + moduleId, registeredModules[moduleId]);
+                registeredModules[moduleId].onviewload.call(registeredModules[moduleId]);
             } else {
                 Y.on("contentready", registeredModules[moduleId].onviewload, "#" + moduleId, registeredModules[moduleId]);
             }
