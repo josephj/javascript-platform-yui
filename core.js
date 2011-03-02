@@ -7,6 +7,9 @@ YUI.add("platform-core", function (Y) {
         //===========================
         // Private Functions & Events
         //===========================
+        broadcast = function (msgName, data) {
+            match(msgName, "PlatformCore", data);
+        },
         /*
          * Match event and modules which subscribes the event
          * @method match
@@ -125,6 +128,7 @@ YUI.add("platform-core", function (Y) {
         register: register,
         registerAll: registerAll,
         start: start,
+        broadcast: broadcast,
         _match: match,
         _addListener: addListener
     };
