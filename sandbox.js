@@ -49,8 +49,8 @@ YUI.add("platform-sandbox", function (Y) {
         },
         log: function (msg, type) {
             type = type || "info";
-            Y.log(msg, type, "#" + id);
-        };
+            Y.log(msg, type, "#" + this.id);
+        }
     };
     Y.PlatformSandbox = PlatformSandbox;
 });
