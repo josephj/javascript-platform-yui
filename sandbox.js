@@ -46,7 +46,11 @@ YUI.add("platform-sandbox", function (Y) {
         getViewNode: function () {
             Y.log("getViewNode() for #" + this.id + " is executed.", "info", "PlatformSandbox"); 
             return Y.one("#" + this.id);
-        }
+        },
+        log: function (msg, type) {
+            type = type || "info";
+            Y.log(msg, type, "#" + id);
+        };
     };
     Y.PlatformSandbox = PlatformSandbox;
 });

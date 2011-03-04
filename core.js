@@ -1,14 +1,26 @@
 /*global YUI */
 YUI.namespace("PlatformModules");
 YUI.add("platform-core", function (Y) {
-    var registeredModules = [],
+    var MODULE_ID = "PlatformCore",
+        registeredModules = [],
         listeners = {},
         maps = [],
         //===========================
         // Private Functions & Events
         //===========================
         broadcast = function (msgName, data) {
-            match(msgName, "PlatformCore", data);
+            Y.log("broadcast(\"" + msgName + "\") for #" + this.id + " is executed.", "info", MODULE_ID); 
+            var moduleId;
+            if (msgName.indexOf(":") !== -1) {
+                moduleId = msgName.split(":")[0];                    
+                if (moduleId !== MODULE_ID) {
+                    Y.log("broadcast(\"" + msgName + "\") the id you assigned is not identical with current module id.", "error", "PlatformCore"); 
+                    return false;
+                }
+            } else {
+                msgName = MODULE_ID + ":" + msgName;
+            }
+            match(msgName, MODULE_ID, data);
         },
         /*
          * Match event and modules which subscribes the event
