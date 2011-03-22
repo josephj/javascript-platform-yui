@@ -123,6 +123,7 @@ YUI.add("platform-core", function (Y) {
                 return;
             }
             var sandbox = new Y.PlatformSandbox(moduleId);
+            sandbox.ready = false;
             registeredModules[moduleId].init(sandbox);
             if (typeof registeredModules[moduleId].onviewload === "undefined") {
                 Y.log("register() : Module onviewload function is not defined.", "warn", "PlatformCore"); 
@@ -132,8 +133,13 @@ YUI.add("platform-core", function (Y) {
                 // TODO: Find the reason why onavailable is not triggered when browsing space in Bar (IE8).
                 // Y.on("available", registeredModules[moduleId].onviewload, "#" + moduleId, registeredModules[moduleId]);
                 registeredModules[moduleId].onviewload.call(registeredModules[moduleId]);
+                sandbox.ready = true;
             } else {
                 Y.on("contentready", registeredModules[moduleId].onviewload, "#" + moduleId, registeredModules[moduleId]);
+                Y.on("contentready", function() {
+                    sandbox.ready = true;
+                }, "#" + moduleId, registeredModules[moduleId]);
+
             }
         };       
     Y.PlatformCore = {
