@@ -9,12 +9,12 @@ YUI.add("platform-core", function (Y) {
         // Private Functions & Events
         //===========================
         broadcast = function (msgName, data) {
-            Y.log("broadcast(\"" + msgName + "\") for #" + this.id + " is executed.", "info", MODULE_ID); 
+            Y.log("broadcast(\"" + msgName + "\") for #" + this.id + " is executed.", "info", MODULE_ID);
             var moduleId;
             if (msgName.indexOf(":") !== -1) {
-                moduleId = msgName.split(":")[0];                    
+                moduleId = msgName.split(":")[0];
                 if (moduleId !== MODULE_ID) {
-                    Y.log("broadcast(\"" + msgName + "\") the id you assigned is not identical with current module id.", "error", "PlatformCore"); 
+                    Y.log("broadcast(\"" + msgName + "\") the id you assigned is not identical with current module id.", "error", "PlatformCore");
                     return false;
                 }
             } else {
@@ -27,17 +27,17 @@ YUI.add("platform-core", function (Y) {
          * @method match
          * @param msgName {String} Event label name
          * @param callerId {String} The ID of the module which just broadcasts
-         * @param callerData {Object} The data that a broadcasting module wants to share 
+         * @param callerData {Object} The data that a broadcasting module wants to share
          * @return void
          */
         match = function (msgName, callerId, callerData) {
             Y.log("match(\"" + msgName + "\", \"" + callerId + "\", \"" + callerData + "\") is executed.", "info", "PlatformCore");
-            var modules = [], 
+            var modules = [],
                 i,
                 key;
             if (msgName.indexOf(":") !== -1) {
                 if (callerId !== msgName.split(":")[0]) {
-                    Y.log("match(\"" + msgName + "\") the id you assigned (" + msgName.split(":")[0] + ") is not identical with current module id (" + callerId + "). Stop execution.", "warn", "PlatformCore"); 
+                    Y.log("match(\"" + msgName + "\") the id you assigned (" + msgName.split(":")[0] + ") is not identical with current module id (" + callerId + "). Stop execution.", "warn", "PlatformCore");
                     return;
                 }
             }
@@ -56,28 +56,28 @@ YUI.add("platform-core", function (Y) {
                 try {
                     listeners[i][key](msgName, callerId, callerData);
                     if (typeof registeredModules[i].onmessage !== "undefined") {
-                        registeredModules[i].onmessage(msgName, callerId, callerData);    
+                        registeredModules[i].onmessage(msgName, callerId, callerData);
                     }
                     modules.push(i);
                 }
                 catch (e) {
                     Y.log("_match() " + e.message, "error", "PlatformCore");
                 }
-            }    
+            }
             Y.log("_match(\"" + msgName + "\", \"" + callerId + "\", \"" + callerData + "\") is executed successfully, " + modules.length + " module(s) is(are) influenced: \"#" + modules.join(", #") + "\"", "info", "PlatformCore");
         },
-        /* 
-         * Let a module listen for a specific message 
+        /*
+         * Let a module listen for a specific message
          * @method addListener
          * @param moduleId {String} ID of the module which wants to listen.
          * @param msgName {String} Target message label name.
          * @private
          * @return {String} listener ID for future use (remove, update...)
-         *                
+         *
          */
         addListener = function (moduleId, msgName, handler) {
             Y.log("_addListener(\"" + moduleId + "\", \"" + msgName + "\") is executed.", "info", "PlatformCore");
-            var i, 
+            var i,
                 j,
                 listener,
                 listenerId,
@@ -91,7 +91,7 @@ YUI.add("platform-core", function (Y) {
             maps[listenerId] = listeners[moduleId][msgName];
             return listenerId;
         },
-        /* 
+        /*
          * Register a module to PlatformCore
          *
          * @method register
@@ -102,16 +102,16 @@ YUI.add("platform-core", function (Y) {
          * @return {Boolean} false if target message is registered by this module
          */
         register = function (moduleId, o, registerOnly) {
-            Y.log("register(\"" + moduleId + "\", " + o + ") is executed.", "info", "PlatformCore"); 
+            Y.log("register(\"" + moduleId + "\", " + o + ") is executed.", "info", "PlatformCore");
             registerOnly = registerOnly || false;
-            registeredModules[moduleId] = o;    
+            registeredModules[moduleId] = o;
             if (registerOnly) {
                 return;
             }
             start(moduleId);
         },
         registerAll = function (modules, registerOnly) {
-            Y.log("registerAll() is executed.", "info", "PlatformCore"); 
+            Y.log("registerAll() is executed.", "info", "PlatformCore");
             registerOnly = registerOnly || false;
             for (var i in modules) {
                 register(i, modules[i], registerOnly);
@@ -119,29 +119,29 @@ YUI.add("platform-core", function (Y) {
         },
         start = function (moduleId) {
             if (typeof registeredModules[moduleId].init === "undefined") {
-                Y.log("register() : Module init function is not defined.", "warn", "PlatformCore"); 
+                Y.log("register() : Module init function is not defined.", "warn", "PlatformCore");
                 return;
             }
             var sandbox = new Y.PlatformSandbox(moduleId);
             sandbox.ready = false;
             registeredModules[moduleId].init(sandbox);
             if (typeof registeredModules[moduleId].onviewload === "undefined") {
-                Y.log("register() : Module onviewload function is not defined.", "warn", "PlatformCore"); 
+                Y.log("register() : Module onviewload function is not defined.", "warn", "PlatformCore");
                 return;
             }
-            if (document.getElementById(moduleId)) {
-                // TODO: Find the reason why onavailable is not triggered when browsing space in Bar (IE8).
-                // Y.on("available", registeredModules[moduleId].onviewload, "#" + moduleId, registeredModules[moduleId]);
-                registeredModules[moduleId].onviewload.call(registeredModules[moduleId]);
-                sandbox.ready = true;
-            } else {
-                Y.on("contentready", registeredModules[moduleId].onviewload, "#" + moduleId, registeredModules[moduleId]);
-                Y.on("contentready", function() {
+            Y.on("contentready", function() {
+                (function onContentReady() {
+                    // To prevent contentready when the page still loading
+                    if (document.readyState === "loading") {
+                        Y.log("skip - loading : " + moduleId, "error");
+                        setTimeout(onContentReady, Y.Event.POLL_INTERVAL || 40);
+                        return;
+                    }
+                    registeredModules[moduleId].onviewload.call(registeredModules[moduleId]);
                     sandbox.ready = true;
-                }, "#" + moduleId, registeredModules[moduleId]);
-
-            }
-        };       
+                }());
+            }, "#" + moduleId);
+        };
     Y.PlatformCore = {
         register: register,
         registerAll: registerAll,
