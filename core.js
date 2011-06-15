@@ -135,7 +135,7 @@ YUI.add("platform-core", function (Y) {
                 return;
             }
 
-            if (window !== top) { // IFrame situation - YUI contentReady event will not be triggered.
+            if (self !== top) { // IFrame situation - YUI contentReady event will not be triggered.
                 (function () {
                     if (document.getElementById(moduleId)) {
                         if (document.readyState === "loading") { // Prevent when page is still loading
