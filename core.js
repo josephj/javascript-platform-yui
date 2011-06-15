@@ -1,4 +1,4 @@
-/*global YUI */
+/*global YUI, window, document, setTimeout, top */
 YUI.namespace("PlatformModules");
 YUI.add("platform-core", function (Y) {
     var MODULE_ID = "PlatformCore",
@@ -22,8 +22,9 @@ YUI.add("platform-core", function (Y) {
             }
             match(msgName, MODULE_ID, data);
         },
-        /*
+        /**
          * Match event and modules which subscribes the event
+         *
          * @method match
          * @param msgName {String} Event label name
          * @param callerId {String} The ID of the module which just broadcasts
@@ -44,24 +45,26 @@ YUI.add("platform-core", function (Y) {
             msgName =  msgName.split(":")[1];
             // find modules which register this event
             for (i in listeners) {
-                if (!listeners[i].hasOwnProperty(msgName) && !listeners[i].hasOwnProperty(callerId + ":" + msgName)) {
-                    continue;
-                }
-                if (listeners[i].hasOwnProperty(callerId + ":" + msgName)) {
-                    key  = callerId + ":" + msgName;
-                } else {
-                    key = msgName;
-                }
-                // prevent user handlers' error
-                try {
-                    listeners[i][key](msgName, callerId, callerData);
-                    if (typeof registeredModules[i].onmessage !== "undefined") {
-                        registeredModules[i].onmessage(msgName, callerId, callerData);
+                if (listeners.hasOwnProperty(i)) { 
+                    if (!listeners[i].hasOwnProperty(msgName) && !listeners[i].hasOwnProperty(callerId + ":" + msgName)) {
+                        continue;
                     }
-                    modules.push(i);
-                }
-                catch (e) {
-                    Y.log("_match() " + e.message, "error", "PlatformCore");
+                    if (listeners[i].hasOwnProperty(callerId + ":" + msgName)) {
+                        key  = callerId + ":" + msgName;
+                    } else {
+                        key = msgName;
+                    }
+                    // prevent user handlers' error
+                    try {
+                        listeners[i][key](msgName, callerId, callerData);
+                        if (typeof registeredModules[i].onmessage !== "undefined") {
+                            registeredModules[i].onmessage(msgName, callerId, callerData);
+                        }
+                        modules.push(i);
+                    }
+                    catch (e) {
+                        Y.log("_match() " + e.message, "error", "PlatformCore");
+                    }
                 }
             }
             Y.log("_match(\"" + msgName + "\", \"" + callerId + "\", \"" + callerData + "\") is executed successfully, " + modules.length + " module(s) is(are) influenced: \"#" + modules.join(", #") + "\"", "info", "PlatformCore");
@@ -114,7 +117,9 @@ YUI.add("platform-core", function (Y) {
             Y.log("registerAll() is executed.", "info", "PlatformCore");
             registerOnly = registerOnly || false;
             for (var i in modules) {
-                register(i, modules[i], registerOnly);
+                if (modules.hasOwnProperty(i)) {
+                    register(i, modules[i], registerOnly);
+                }
             }
         },
         start = function (moduleId) {
@@ -130,32 +135,29 @@ YUI.add("platform-core", function (Y) {
                 return;
             }
 
-            // TODO: Find the reason why onavailable is not triggered when browsing space in Bar (IE8).
-            // It won't trigger contentready event when page is in iframe. (miiiCasa Bar)
-            // So we provide 2 methods to cover all situations.
-            (function () {
-                if (document.getElementById(moduleId)) {
-                    // To prevent contentready when the page still loading
-                    if (document.readyState === "loading") {
+            if (window !== top) { // IFrame situation - YUI contentReady event will not be triggered.
+                (function () {
+                    if (
+                        document.getElementById(moduleId) &&
+                        document.readyState === "loading" // Prevent when page is still loading
+                    ) {
+                        setTimeout(arguments.callee, Y.Event.POLL_INTERVAL || 40);
+                        return;
+                    }
+                    registeredModules[moduleId].onviewload.call(registeredModules[moduleId]);
+                    sandbox.ready = true;
+                }());
+            } else {
+                Y.on("contentready", function () {
+                    if (document.readyState === "loading") { // Prevent when page is still loading
                         Y.log("skip - loading : " + moduleId, "error");
                         setTimeout(arguments.callee, Y.Event.POLL_INTERVAL || 40);
                         return;
                     }
                     registeredModules[moduleId].onviewload.call(registeredModules[moduleId]);
                     sandbox.ready = true;
-                } else {
-                    Y.on("contentready", function() {
-                        // To prevent contentready when the page still loading
-                        if (document.readyState === "loading") {
-                            Y.log("skip - loading : " + moduleId, "error");
-                            setTimeout(arguments.callee, Y.Event.POLL_INTERVAL || 40);
-                            return;
-                        }
-                        registeredModules[moduleId].onviewload.call(registeredModules[moduleId]);
-                        sandbox.ready = true;
-                    }, "#" + moduleId);
-                }
-            }());
+                }, "#" + moduleId);
+            }
         };
     Y.PlatformCore = {
         register: register,
