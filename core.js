@@ -137,15 +137,14 @@ YUI.add("platform-core", function (Y) {
 
             if (window !== top) { // IFrame situation - YUI contentReady event will not be triggered.
                 (function () {
-                    if (
-                        document.getElementById(moduleId) &&
-                        document.readyState === "loading" // Prevent when page is still loading
-                    ) {
-                        setTimeout(arguments.callee, Y.Event.POLL_INTERVAL || 40);
-                        return;
+                    if (document.getElementById(moduleId)) {
+                        if (document.readyState === "loading") { // Prevent when page is still loading
+                            setTimeout(arguments.callee, Y.Event.POLL_INTERVAL || 40);
+                            return;
+                        }
+                        registeredModules[moduleId].onviewload.call(registeredModules[moduleId]);
+                        sandbox.ready = true;
                     }
-                    registeredModules[moduleId].onviewload.call(registeredModules[moduleId]);
-                    sandbox.ready = true;
                 }());
             } else {
                 Y.on("contentready", function () {
