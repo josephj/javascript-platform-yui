@@ -129,18 +129,33 @@ YUI.add("platform-core", function (Y) {
                 Y.log("register() : Module onviewload function is not defined.", "warn", "PlatformCore");
                 return;
             }
-            Y.on("contentready", function() {
-                (function onContentReady() {
+
+            // TODO: Find the reason why onavailable is not triggered when browsing space in Bar (IE8).
+            // It won't trigger contentready event when page is in iframe. (miiiCasa Bar)
+            // So we provide 2 methods to cover all situations.
+            (function () {
+                if (document.getElementById(moduleId)) {
                     // To prevent contentready when the page still loading
                     if (document.readyState === "loading") {
                         Y.log("skip - loading : " + moduleId, "error");
-                        setTimeout(onContentReady, Y.Event.POLL_INTERVAL || 40);
+                        setTimeout(arguments.callee, Y.Event.POLL_INTERVAL || 40);
                         return;
                     }
                     registeredModules[moduleId].onviewload.call(registeredModules[moduleId]);
                     sandbox.ready = true;
-                }());
-            }, "#" + moduleId);
+                } else {
+                    Y.on("contentready", function() {
+                        // To prevent contentready when the page still loading
+                        if (document.readyState === "loading") {
+                            Y.log("skip - loading : " + moduleId, "error");
+                            setTimeout(arguments.callee, Y.Event.POLL_INTERVAL || 40);
+                            return;
+                        }
+                        registeredModules[moduleId].onviewload.call(registeredModules[moduleId]);
+                        sandbox.ready = true;
+                    }, "#" + moduleId);
+                }
+            }());
         };
     Y.PlatformCore = {
         register: register,
