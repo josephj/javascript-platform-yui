@@ -45,7 +45,7 @@ YUI.add("platform-core", function (Y) {
             msgName =  msgName.split(":")[1];
             // find modules which register this event
             for (i in listeners) {
-                if (listeners.hasOwnProperty(i)) { 
+                if (listeners.hasOwnProperty(i)) {
                     if (!listeners[i].hasOwnProperty(msgName) && !listeners[i].hasOwnProperty(callerId + ":" + msgName)) {
                         continue;
                     }
@@ -138,7 +138,7 @@ YUI.add("platform-core", function (Y) {
             if (self !== top) { // IFrame situation - YUI contentReady event will not be triggered.
                 (function () {
                     if (document.getElementById(moduleId)) {
-                        if (document.readyState === "loading") { // Prevent when page is still loading
+                        if (Y.UA.ie && document.readyState === "loading") { // Prevent when page is still loading
                             setTimeout(arguments.callee, Y.Event.POLL_INTERVAL || 40);
                             return;
                         }
@@ -148,7 +148,7 @@ YUI.add("platform-core", function (Y) {
                 }());
             } else {
                 Y.on("contentready", function () {
-                    if (document.readyState === "loading") { // Prevent when page is still loading
+                    if (Y.UA.ie && document.readyState === "loading") { // Prevent when page is still loading
                         Y.log("skip - loading : " + moduleId, "error");
                         setTimeout(arguments.callee, Y.Event.POLL_INTERVAL || 40);
                         return;
