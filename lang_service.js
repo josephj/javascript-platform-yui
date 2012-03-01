@@ -5,7 +5,7 @@ YUI.add("lang-service", function (Y) {
 
     /*
      * Get current language module name.
-     * 
+     *
      * @method getLangModule
      * @static
      * @public
@@ -39,9 +39,9 @@ YUI.add("lang-service", function (Y) {
     };
 
     /*
-     * Switch to different language tag. 
+     * Switch to different language tag.
      * It will on-demand load target language resource file.
-     * 
+     *
      * @method setLang
      * @static
      * @public
@@ -60,9 +60,9 @@ YUI.add("lang-service", function (Y) {
     };
 
     /*
-     * Switch to different language tag. 
+     * Switch to different language tag.
      * It will on-demand load target language resource file.
-     * 
+     *
      * @method setLang
      * @static
      * @public
@@ -82,7 +82,7 @@ YUI.add("lang-service", function (Y) {
 
     /*
      * Get current language tag.
-     * 
+     *
      * @method getLang
      * @static
      * @public
@@ -95,7 +95,7 @@ YUI.add("lang-service", function (Y) {
 
     /*
      * Get translation by key.
-     * 
+     *
      * @method getTrans
      * @static
      * @public
@@ -121,7 +121,11 @@ YUI.add("lang-service", function (Y) {
         key = _moduleName + "-" + this.id.replace(/\-/g, "_") + "-" + key;
 
         // Get tranlation resource array.
-        trans = Y.Intl.get(_moduleName);
+        if (this.langModule) {
+            trans = Y.Intl.get(this.langModule);
+        } else {
+            trans = Y.Intl.get(_moduleName);
+        }
 
         // Check if the key exists in language resource.
         isExist =  (typeof trans[key] !== "undefined") ? true : false;
@@ -137,5 +141,5 @@ YUI.add("lang-service", function (Y) {
         }
         return text;
     };
-
+    Y.PlatformSandbox.prototype.langModule = null;
 });

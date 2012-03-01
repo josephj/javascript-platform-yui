@@ -129,6 +129,11 @@ YUI.add("platform-core", function (Y) {
             }
             var sandbox = new Y.PlatformSandbox(moduleId);
             sandbox.ready = false;
+            // Let module can specify the language module.
+            // Module like contact picker needs this setting. (#2198)
+            if (typeof registeredModules[moduleId].langModule !== "undefined") {
+                sandbox.langModule = registeredModules[moduleId].langModule;
+            }
             registeredModules[moduleId].init(sandbox);
             if (typeof registeredModules[moduleId].onviewload === "undefined") {
                 Y.log("register() : Module onviewload function is not defined.", "warn", "PlatformCore");
