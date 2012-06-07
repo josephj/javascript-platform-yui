@@ -140,17 +140,19 @@ YUI.add("platform-core", function (Y) {
                 return;
             }
 
-            if (self !== top) { // IFrame situation - YUI contentReady event will not be triggered.
-                (function () {
-                    if (document.getElementById(moduleId)) {
-                        if (Y.UA.ie && document.readyState === "loading") { // Prevent when page is still loading
-                            setTimeout(arguments.callee, Y.Event.POLL_INTERVAL || 40);
-                            return;
-                        }
-                        registeredModules[moduleId].onviewload.call(registeredModules[moduleId]);
-                        sandbox.ready = true;
+            (function () {
+                if (document.getElementById(moduleId)) {
+                    if (Y.UA.ie && document.readyState === "loading") { // Prevent when page is still loading
+                        setTimeout(arguments.callee, Y.Event.POLL_INTERVAL || 40);
+                        return;
                     }
-                }());
+                    registeredModules[moduleId].onviewload.call(registeredModules[moduleId]);
+                    sandbox.ready = true;
+                }
+            }());
+
+            // TODO - Figure out why space modules don't trigger contentready event.
+            /*if (self !== top) { // IFrame situation - YUI contentReady event will not be triggered.
             } else {
                 Y.on("contentready", function () {
                     if (Y.UA.ie && document.readyState === "loading") { // Prevent when page is still loading
@@ -161,7 +163,8 @@ YUI.add("platform-core", function (Y) {
                     registeredModules[moduleId].onviewload.call(registeredModules[moduleId]);
                     sandbox.ready = true;
                 }, "#" + moduleId);
-            }
+            }*/
+
         };
     Y.PlatformCore = {
         register: register,
