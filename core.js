@@ -149,16 +149,29 @@ YUI.add("platform-core", function (Y) {
 
             // TODO - 2012/06/28, if contentready can not work well, please recovery to getElementById method.
             /*
-            (function () {
-                if (document.getElementById(moduleId)) {
+            if (Y.UA.gecko && location.href.indexOf("music_player") !== -1) {
+                // TODO - Figure out why space modules don't trigger contentready event.
+                Y.on("contentready", function () {
                     if (Y.UA.ie && document.readyState === "loading") { // Prevent when page is still loading
+                        Y.log("skip - loading : " + moduleId, "error");
                         setTimeout(arguments.callee, Y.Event.POLL_INTERVAL || 40);
                         return;
                     }
                     registeredModules[moduleId].onviewload.call(registeredModules[moduleId]);
                     sandbox.ready = true;
-                }
-            }());
+                }, "#" + moduleId);
+            } else {
+                (function () {
+                    if (document.getElementById(moduleId)) {
+                        if (Y.UA.ie && document.readyState === "loading") { // Prevent when page is still loading
+                            setTimeout(arguments.callee, Y.Event.POLL_INTERVAL || 40);
+                            return;
+                        }
+                        registeredModules[moduleId].onviewload.call(registeredModules[moduleId]);
+                        sandbox.ready = true;
+                    }
+                }());
+            }
             */
 
             // TODO - Figure out why space modules don't trigger contentready event.
