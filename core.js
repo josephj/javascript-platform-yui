@@ -140,17 +140,29 @@ YUI.add("platform-core", function (Y) {
                 return;
             }
 
-            if (self !== top) { // IFrame situation - YUI contentReady event will not be triggered.
-                (function () {
-                    if (document.getElementById(moduleId)) {
-                        if (Y.UA.ie && document.readyState === "loading") { // Prevent when page is still loading
-                            setTimeout(arguments.callee, Y.Event.POLL_INTERVAL || 40);
-                            return;
-                        }
-                        registeredModules[moduleId].onviewload.call(registeredModules[moduleId]);
-                        sandbox.ready = true;
+            (function () {
+                Y.on("contentready", function () {
+                    registeredModules[moduleId].onviewload.call(registeredModules[moduleId]);
+                    sandbox.ready = true;
+                }, "#" + moduleId);
+            }());
+
+            // TODO - 2012/06/28, if contentready can not work well, please recovery to getElementById method.
+            /*
+            (function () {
+                if (document.getElementById(moduleId)) {
+                    if (Y.UA.ie && document.readyState === "loading") { // Prevent when page is still loading
+                        setTimeout(arguments.callee, Y.Event.POLL_INTERVAL || 40);
+                        return;
                     }
-                }());
+                    registeredModules[moduleId].onviewload.call(registeredModules[moduleId]);
+                    sandbox.ready = true;
+                }
+            }());
+            */
+
+            // TODO - Figure out why space modules don't trigger contentready event.
+            /*if (self !== top) { // IFrame situation - YUI contentReady event will not be triggered.
             } else {
                 Y.on("contentready", function () {
                     if (Y.UA.ie && document.readyState === "loading") { // Prevent when page is still loading
@@ -162,7 +174,9 @@ YUI.add("platform-core", function (Y) {
                     sandbox.ready = true;
                 }, "#" + moduleId);
             }
+            */
         };
+
     Y.PlatformCore = {
         register: register,
         registerAll: registerAll,
