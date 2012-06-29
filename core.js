@@ -140,15 +140,17 @@ YUI.add("platform-core", function (Y) {
                 return;
             }
 
+            // NOTE - 2012/06/29: Not work well, fail back to getElementById
+            /*
             (function () {
                 Y.on("contentready", function () {
                     registeredModules[moduleId].onviewload.call(registeredModules[moduleId]);
                     sandbox.ready = true;
                 }, "#" + moduleId);
             }());
+            */
 
             // TODO - 2012/06/28, if contentready can not work well, please recovery to getElementById method.
-            /*
             if (Y.UA.gecko && location.href.indexOf("music_player") !== -1) {
                 // TODO - Figure out why space modules don't trigger contentready event.
                 Y.on("contentready", function () {
@@ -172,7 +174,6 @@ YUI.add("platform-core", function (Y) {
                     }
                 }());
             }
-            */
 
             // TODO - Figure out why space modules don't trigger contentready event.
             /*if (self !== top) { // IFrame situation - YUI contentReady event will not be triggered.
