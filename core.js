@@ -151,7 +151,7 @@ YUI.add("platform-core", function (Y) {
             */
 
             // TODO - 2012/06/28, if contentready can not work well, please recovery to getElementById method.
-            if (Y.UA.gecko && location.href.indexOf("music_player") !== -1) {
+            if (location.href.indexOf("music_player") !== -1) {
                 // TODO - Figure out why space modules don't trigger contentready event.
                 Y.on("contentready", function () {
                     if (Y.UA.ie && document.readyState === "loading") { // Prevent when page is still loading
