@@ -1,13 +1,18 @@
 /*global YUI, window, document, setTimeout, top */
 YUI.namespace("PlatformModules");
 YUI.add("platform-core", function (Y) {
-    var MODULE_ID = "PlatformCore",
-        registeredModules = [],
+    var MODULE_ID = "Y.PlatformCore",
+        _registeredModules = [],
         listeners = {},
         maps = [],
         //===========================
         // Private Functions & Events
         //===========================
+        _log = function (msg, type, module) {
+            type = type || "info";
+            module = module || MODULE_ID;
+            Y.log(msg, type, module);
+        },
         broadcast = function (msgName, data) {
             Y.log("broadcast(\"" + msgName + "\") for #" + this.id + " is executed.", "info", MODULE_ID);
             var moduleId;
@@ -57,8 +62,8 @@ YUI.add("platform-core", function (Y) {
                     // prevent user handlers' error
                     try {
                         listeners[i][key](msgName, callerId, callerData);
-                        if (typeof registeredModules[i].onmessage !== "undefined") {
-                            registeredModules[i].onmessage(msgName, callerId, callerData);
+                        if (typeof _registeredModules[i].onmessage !== "undefined") {
+                            _registeredModules[i].onmessage(msgName, callerId, callerData);
                         }
                         modules.push(i);
                     }
@@ -105,16 +110,16 @@ YUI.add("platform-core", function (Y) {
          * @return {Boolean} false if target message is registered by this module
          */
         register = function (moduleId, o, registerOnly) {
-            Y.log("register(\"" + moduleId + "\", " + o + ") is executed.", "info", "PlatformCore");
+            _log("register('#" + moduleId + "') is executed.");
             registerOnly = registerOnly || false;
-            registeredModules[moduleId] = o;
+            _registeredModules[moduleId] = o;
             if (registerOnly) {
                 return;
             }
             start(moduleId);
         },
         registerAll = function (modules, registerOnly) {
-            Y.log("registerAll() is executed.", "info", "PlatformCore");
+            _log("registerAll() is executed.");
             registerOnly = registerOnly || false;
             for (var i in modules) {
                 if (modules.hasOwnProperty(i)) {
@@ -123,72 +128,49 @@ YUI.add("platform-core", function (Y) {
             }
         },
         start = function (moduleId) {
-            if (typeof registeredModules[moduleId].init === "undefined") {
-                Y.log("register() : Module init function is not defined.", "warn", "PlatformCore");
+            _log("start('#" + moduleId + "') is executed");
+
+            if (Y.Lang.isUndefined(_registeredModules[moduleId].init)) {
+                _log("start('#" + moduleId + "') : Module init function is not defined.", "warn");
                 return;
             }
-            var sandbox = new Y.PlatformSandbox(moduleId);
+
+            var sandbox = new Y.PlatformSandbox(moduleId),
+                module  = _registeredModules[moduleId],
+                callback;
+
             sandbox.ready = false;
-            // Let module can specify the language module.
-            // Module like contact picker needs this setting. (#2198)
-            if (typeof registeredModules[moduleId].langModule !== "undefined") {
-                sandbox.langModule = registeredModules[moduleId].langModule;
+
+            // Let module can specify the its language module.
+            if (!Y.Lang.isUndefined(module.langModule)) {
+                sandbox.langModule = module.langModule;
             }
-            registeredModules[moduleId].init(sandbox);
-            if (typeof registeredModules[moduleId].onviewload === "undefined") {
-                Y.log("register() : Module onviewload function is not defined.", "warn", "PlatformCore");
+
+            // Initialize the module.
+            module.init(sandbox);
+
+            // Stop if onviewload is undefined.
+            if (Y.Lang.isUndefined(module.onviewload)) {
+                _log("start('#" + moduleId + "') - onviewload is undefined.", "warn");
                 return;
             }
 
-            // NOTE - 2012/06/29: Not work well, fail back to getElementById
-            /*
-            (function () {
-                Y.on("contentready", function () {
-                    registeredModules[moduleId].onviewload.call(registeredModules[moduleId]);
+            if (!Y.Lang.isUndefined(YUI.Env.DOMReady) && YUI.Env.DOMReady) {
+                _log("start('#" + moduleId + "') - dom has already ready.", "warn");
+                if (Y.one("#" + moduleId)) {
+                    _log("start('#" + moduleId + "') - node exists.");
+                    module.onviewload.call(module);
                     sandbox.ready = true;
-                }, "#" + moduleId);
-            }());
-            */
-
-            // TODO - 2012/06/28, if contentready can not work well, please recovery to getElementById method.
-            if (location.href.indexOf("music_player") !== -1) {
-                // TODO - Figure out why space modules don't trigger contentready event.
-                Y.on("contentready", function () {
-                    if (Y.UA.ie && document.readyState === "loading") { // Prevent when page is still loading
-                        Y.log("skip - loading : " + moduleId, "error");
-                        setTimeout(arguments.callee, Y.Event.POLL_INTERVAL || 40);
-                        return;
-                    }
-                    registeredModules[moduleId].onviewload.call(registeredModules[moduleId]);
-                    sandbox.ready = true;
-                }, "#" + moduleId);
+                }
             } else {
-                (function () {
-                    if (document.getElementById(moduleId)) {
-                        if (Y.UA.ie && document.readyState === "loading") { // Prevent when page is still loading
-                            setTimeout(arguments.callee, Y.Event.POLL_INTERVAL || 40);
-                            return;
-                        }
-                        registeredModules[moduleId].onviewload.call(registeredModules[moduleId]);
+                Y.on("domready", function () {
+                    Y.on("contentready", function () {
+                        _log("start('#" + moduleId + "') - contentready is triggered.");
+                        module.onviewload.call(module);
                         sandbox.ready = true;
-                    }
-                }());
+                    }, "#" + moduleId);
+                });
             }
-
-            // TODO - Figure out why space modules don't trigger contentready event.
-            /*if (self !== top) { // IFrame situation - YUI contentReady event will not be triggered.
-            } else {
-                Y.on("contentready", function () {
-                    if (Y.UA.ie && document.readyState === "loading") { // Prevent when page is still loading
-                        Y.log("skip - loading : " + moduleId, "error");
-                        setTimeout(arguments.callee, Y.Event.POLL_INTERVAL || 40);
-                        return;
-                    }
-                    registeredModules[moduleId].onviewload.call(registeredModules[moduleId]);
-                    sandbox.ready = true;
-                }, "#" + moduleId);
-            }
-            */
         };
 
     Y.PlatformCore = {
