@@ -164,11 +164,12 @@ YUI.add("platform-core", function (Y) {
                 }
             } else {
                 Y.on("domready", function () {
-                    Y.on("contentready", function () {
-                        _log("start('#" + moduleId + "') - contentready is triggered.");
+                    _log("start('#" + moduleId + "') - dom is ready.");
+                    if (Y.one("#" + moduleId)) {
+                        _log("start('#" + moduleId + "') - node exists.");
                         module.onviewload.call(module);
                         sandbox.ready = true;
-                    }, "#" + moduleId);
+                    }
                 });
             }
         };
