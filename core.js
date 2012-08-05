@@ -121,7 +121,8 @@ YUI.add("platform-core", function (Y) {
         registerAll = function (modules, registerOnly) {
             _log("registerAll() is executed.");
             registerOnly = registerOnly || false;
-            for (var i in modules) {
+            var i;
+            for (i in modules) {
                 if (modules.hasOwnProperty(i)) {
                     register(i, modules[i], registerOnly);
                 }
@@ -137,6 +138,7 @@ YUI.add("platform-core", function (Y) {
 
             var sandbox = new Y.PlatformSandbox(moduleId),
                 module  = _registeredModules[moduleId],
+                node,
                 callback;
 
             sandbox.ready = false;
@@ -156,9 +158,10 @@ YUI.add("platform-core", function (Y) {
             }
 
             if (Y.UA.ie) {
+                node = Y.one("#" + moduleId);
                 if (!Y.Lang.isUndefined(YUI.Env.DOMReady) && YUI.Env.DOMReady) {
                     _log("start('#" + moduleId + "') - dom has already ready.", "warn");
-                    if (Y.one("#" + moduleId)) {
+                    if (node && node.get("nextSibling")) {
                         _log("start('#" + moduleId + "') - node exists.");
                         module.onviewload.call(module);
                         sandbox.ready = true;
@@ -166,7 +169,7 @@ YUI.add("platform-core", function (Y) {
                 } else {
                     Y.on("domready", function () {
                         _log("start('#" + moduleId + "') - dom is ready.");
-                        if (Y.one("#" + moduleId)) {
+                        if (node && node.get("nextSibling")) {
                             _log("start('#" + moduleId + "') - node exists.");
                             module.onviewload.call(module);
                             sandbox.ready = true;
