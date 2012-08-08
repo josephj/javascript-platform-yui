@@ -158,10 +158,10 @@ YUI.add("platform-core", function (Y) {
             }
 
             if (Y.UA.ie) {
-                node = Y.one("#" + moduleId);
                 if (!Y.Lang.isUndefined(YUI.Env.DOMReady) && YUI.Env.DOMReady) {
                     _log("start('#" + moduleId + "') - dom has already ready.", "warn");
-                    if (node && node.get("nextSibling")) {
+                    node = Y.one("#" + moduleId);
+                    if (node) {
                         _log("start('#" + moduleId + "') - node exists.");
                         module.onviewload.call(module);
                         sandbox.ready = true;
@@ -169,7 +169,8 @@ YUI.add("platform-core", function (Y) {
                 } else {
                     Y.on("domready", function () {
                         _log("start('#" + moduleId + "') - dom is ready.");
-                        if (node && node.get("nextSibling")) {
+                        node = Y.one("#" + moduleId);
+                        if (node) {
                             _log("start('#" + moduleId + "') - node exists.");
                             module.onviewload.call(module);
                             sandbox.ready = true;
