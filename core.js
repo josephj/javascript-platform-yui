@@ -157,34 +157,14 @@ YUI.add("platform-core", function (Y) {
                 return;
             }
 
-            if (Y.UA.ie) {
-                if (!Y.Lang.isUndefined(YUI.Env.DOMReady) && YUI.Env.DOMReady) {
-                    _log("start('#" + moduleId + "') - dom has already ready.", "warn");
-                    node = Y.one("#" + moduleId);
-                    if (node) {
-                        _log("start('#" + moduleId + "') - node exists.");
-                        module.onviewload.call(module);
-                        sandbox.ready = true;
-                    }
-                } else {
-                    Y.on("domready", function () {
-                        _log("start('#" + moduleId + "') - dom is ready.");
-                        node = Y.one("#" + moduleId);
-                        if (node) {
-                            _log("start('#" + moduleId + "') - node exists.");
-                            module.onviewload.call(module);
-                            sandbox.ready = true;
-                        }
-                    });
-                }
-            } else {
-                Y.on("contentready", function () {
-                    _log("start('#" + moduleId + "') - contentready.");
-                    module.onviewload.call(module);
-                    sandbox.ready = true;
-                }, "#" + moduleId);
-            }
+            Y.on("contentready", function () {
+                _log("start('#" + moduleId + "') - contentready.");
+                module.onviewload.call(module);
+                sandbox.ready = true;
+            }, "#" + moduleId);
         };
+
+    Y.log("YUI Version = " + YUI.version);
 
     Y.PlatformCore = {
         register: register,
